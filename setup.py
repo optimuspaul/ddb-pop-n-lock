@@ -1,30 +1,16 @@
-ddb-pop-n-lock
-============
+import os
+from setuptools import setup, find_packages
 
-A simple reasonable lock for AWS dynamodb.
-
-Use
-============
-
-```
-from ddblocker import DDBLock
-
-lock = DDBLock(key="LOCKTHISWAY!", table_name="my-fancy-locks-table", region_name="us-east-2")
-with lock:
-    # do some things
-    pass
-
-```
-
-Lock will raise `LockFailedError` if the lock could not be aquired. By default there is a 30 second TTL on locks. I believe this to be reasonable for use within lambda functions when your timeout is 30 seconds. Set `max_live` on the lock to extend that assumption. Note that `max_live` is a value that is checked when attempting to aquire a lock and not set when locks have already been aquired.
+# allow setup.py to be run from any path
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 
-License
-============
+README = """
+ddb-pop-n-lock - A simple reasonable lock for AWS dynamodb
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Paul J DeCoursey, Inc.
+Copyright (c) 2016 Paul J DeCoursey
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,3 +29,19 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+"""
+
+setup(
+    name='ddb-pop-n-lock',
+    version='1.0.0',
+    license='MIT',
+    packages=find_packages(),
+    include_package_data=True,
+    description='A simple reasonable lock for AWS dynamodb',
+    long_description=README,
+    url='https://github.com/optimuspaul/ddb-pop-n-lock',
+    author='pjdecoursey',
+    author_email='rosie@robotlove.guru',
+    install_requires=["boto3>=1.3.1"],
+)
