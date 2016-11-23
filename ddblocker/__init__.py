@@ -1,4 +1,5 @@
 import time
+from uuid import uuid4
 
 import boto3
 
@@ -9,7 +10,7 @@ class LockFailedError(Exception):
 
 class DDBLock(object):
 
-    def __init__(self, table_name, key, retries=3, interval_wait=0.1, region_name="us-east-1", max_live=30):
+    def __init__(self, table_name, key, retries=3, interval_wait=0.1, region_name="us-east-1", max_live=30, owner_id=None):
         # interval_wait and max_live are both times in seconds
         self.max_live = max_live
         self.table_name = table_name
@@ -17,6 +18,7 @@ class DDBLock(object):
         self.key = key
         self.interval_wait = interval_wait
         self.retries = retries
+        self.owner_id = owner_id or uuid4()
 
     def __enter__(self):
         tries = 0
@@ -44,6 +46,7 @@ class DDBLock(object):
             "TableName": self.table_name,
             "Item": {
                 "lock_id": {"S": self.key},
+                "owner_id": {"S": self.owner_id},
                 "lock_ts": {"N": str(ts)},
             },
             "ConditionExpression": "attribute_not_exists(lock_id) OR (attribute_exists(lock_ts) AND #L < :abandonment)",
